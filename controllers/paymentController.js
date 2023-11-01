@@ -1,8 +1,12 @@
+
+const express = require('express');
+const mongoose = require('mongoose');
 const Payments = require('../models/payments');
+const db = require("../config/database");
 const axios = require("axios");
 const sandbox = "https://api.public.credodemo.com";
 let API_KEY = `0PUB0343N2CgejxQoEkP5bu7DzZZSUud`;
-//let API_KEY_SECRET = "0PRI0994wI1Nd1vVNNMN4L40btYNyD3k";
+let API_KEY_SECRET = "0PRI0343us0tG069f18IHz9x2vITINau";
 
 exports.getPayments = (req, res, next)=>{
     res.status(200).json({
@@ -29,18 +33,21 @@ exports.postPayments= async (req, res, next) => {
         Authorization: API_KEY,
         "Content-Type": "application/json",
     };
-     await axios.post(sandbox + "/transaction/initialize", requestData, {
+     axios.post(sandbox + "/transaction/initialize", requestData, {
             headers
         })
         .then((response) => {
-            //adding data to mongo db
-            const payment = new Payments({
-                customerFirstName: response.customerFirstName
-            });
-            
-           // const payments=  payments.create(requestData);
-            console.log(payment);
-           
+            const email = requestData.email;
+            const amount = requestData.amount;
+            const reference = response.data.data.reference;
+            const payment= new Payments({
+                email:email,
+                amount:amount,
+                reference:reference,
+                status:"Pending"
+            })
+            payment.save();
+            res.status(200).json(payment);
                 
         })
         .catch((error) => {
@@ -51,3 +58,23 @@ exports.postPayments= async (req, res, next) => {
         });
 }
 
+//verify payment
+exports.getVerifyPayment = async (req, res, next) => {
+    const headers = {
+        Authorization: API_KEY_SECRET,
+        "Content-Type": "application/json",
+    };
+    await axios.get(sandbox + `/transaction/${req.query.ref}/verify`, {
+            headers,
+        })
+        .then((response) => {
+            res.send(response);
+            
+  })
+  .catch((error) => {
+    console.log("Response:", error);
+    return res.status(401).send({
+        Error: error,
+    });
+});
+}

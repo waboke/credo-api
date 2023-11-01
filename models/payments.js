@@ -1,33 +1,29 @@
 const mongoose =require('mongoose');
-
-
-
 const paymentSchema = new mongoose.Schema({
-    customerFirstName: {
-        type: String,
-        required: true,
-    },
-    customerLastName: {
-        type: String,
-        required: true,
-    },
     email: {
-        type: String,
-        required: true,
+        type: String
+       
     },
     amount: {
-        type: Number,
-        required: true,
+        type: Number
+       
     },
     reference: {
-        type: String,
-        required: true
+        type: String
+        
     },
+    status: {
+        type: String,
+        enum :{
+            values : ['Pending', 'Completed', 'Failed']   
+         }
+      },
     postDate:{
         type: Date,
         default: Date.now
     },
     });
-    const payment = mongoose.model('Payments', paymentSchema);
-    module.exports = {payment}
+    // const payment = mongoose.model('Payments', paymentSchema);
+    // module.exports = {payment}
+    module.exports = mongoose.model("Payments",paymentSchema);
   
