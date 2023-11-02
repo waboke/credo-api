@@ -47,7 +47,8 @@ exports.postPayments= async (req, res, next) => {
                 status:"Pending"
             })
             payment.save();
-            res.status(200).json(payment);
+            //redirect to `https://www.credodemo.com/checkout/${response.data.data.reference}`
+          return  res.status(200).send(response.data);
                 
         })
         .catch((error) => {
@@ -60,15 +61,38 @@ exports.postPayments= async (req, res, next) => {
 
 //verify payment
 exports.getVerifyPayment = async (req, res, next) => {
+    const transRef = req.params.transRef;
+    // const ref = req.params.reference;
     const headers = {
         Authorization: API_KEY_SECRET,
         "Content-Type": "application/json",
     };
-    await axios.get(sandbox + `/transaction/${req.query.ref}/verify`, {
+    await axios.get(sandbox + `/transaction/${transRef}/verify`, {
             headers,
         })
         .then((response) => {
-            res.send(response);
+               if(response.data.data.status==0){
+                console.log(response.data.data.businessRef);
+                const ref = response.data.data.businessRef
+                try {
+                    Payments.findOneAndUpdate({reference:ref}, {$set:{status:"Completed"}
+               },  { new:true })
+               return res.send("Transaction Completed");
+              
+                } catch (error) {
+                    console.log(error);
+                }
+              
+
+               }else if (response.data.data.status===3) {
+                Payments.findOneAndUpdate({reference:ref}, {$set:{status:"Failed"}})
+                return res.send("Transaction Failed");
+               }
+            res.send({
+               status: response.data
+            
+            
+            });
             
   })
   .catch((error) => {

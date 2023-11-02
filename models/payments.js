@@ -13,10 +13,7 @@ const paymentSchema = new mongoose.Schema({
         
     },
     status: {
-        type: String,
-        enum :{
-            values : ['Pending', 'Completed', 'Failed']   
-         }
+        type: String
       },
     postDate:{
         type: Date,
@@ -25,5 +22,5 @@ const paymentSchema = new mongoose.Schema({
     });
     // const payment = mongoose.model('Payments', paymentSchema);
     // module.exports = {payment}
-    module.exports = mongoose.model("Payments",paymentSchema);
+    module.exports = mongoose.model("payments",paymentSchema);
   

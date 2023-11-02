@@ -6,6 +6,6 @@ const { postPayments, getPayments, getVerifyPayment} = require('../controllers/p
 
 router.route('/payments').post(postPayments);
 router.route('/payments').get(getPayments);
-router.route('/verifypayments').get(getVerifyPayment);
+router.route('/verifypayments/:transRef').get(getVerifyPayment);
 
 module.exports = router;
